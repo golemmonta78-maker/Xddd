@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Psych Engine 1.0.3 ➜ 0.7.3</title>
+<title>Psych Converter</title>
 
 <style>
 
@@ -32,7 +32,6 @@ button{
     border-radius:10px;
     margin-top:15px;
     font-size:16px;
-    cursor:pointer;
 }
 
 .info{
@@ -71,13 +70,13 @@ textarea{
 <h1>🔥 Psych Engine Converter</h1>
 
 <p>
-Convierte charts de Psych Engine 1.0.3 ➜ 0.7.3 😎
+1.0.3 ➜ 0.7.3
 </p>
 
 <input type="file" id="jsonInput" accept=".json"><br>
 
 <button onclick="convertChart()">
-⚡ Convertir Chart
+⚡ Convertir
 </button>
 
 <div class="info" id="info">
@@ -92,6 +91,39 @@ Esperando chart...
 
 <script>
 
+// 🔥 BORRAR CAMPOS EN TODO EL JSON
+function removeFields(obj){
+
+    const badFields = [
+
+        "gfVersion",
+        "gameOverChar",
+        "gameOverSound",
+        "gameOverLoop",
+        "gameOverEnd",
+        "arrowSkin",
+        "splashSkin",
+        "disableNoteRGB",
+        "events",
+        "eventObjects"
+
+    ];
+
+    if(typeof obj !== "object" || obj === null)
+        return;
+
+    for(let key in obj){
+
+        if(badFields.includes(key)){
+
+            delete obj[key];
+            continue;
+        }
+
+        removeFields(obj[key]);
+    }
+}
+
 async function convertChart(){
 
     const file =
@@ -101,7 +133,7 @@ async function convertChart(){
 
     if(!file){
 
-        alert("Selecciona un chart JSON");
+        alert("Selecciona un JSON");
         return;
     }
 
@@ -117,40 +149,20 @@ async function convertChart(){
     let json =
         JSON.parse(text);
 
-    // =========================
-    // ASEGURARSE QUE EXISTA song
-    // =========================
+    // 🔥 BORRAR TODO LO INCOMPATIBLE
+    removeFields(json);
 
-    if(json.song){
+    // 🔥 LIMPIAR SECCIONES
+    if(json.song && json.song.notes){
 
-        // BORRAR CAMPOS DE 1.0.3
-        delete json.song.gfVersion;
-        delete json.song.gameOverChar;
-        delete json.song.gameOverSound;
-        delete json.song.gameOverLoop;
-        delete json.song.gameOverEnd;
-        delete json.song.arrowSkin;
-        delete json.song.splashSkin;
-        delete json.song.disableNoteRGB;
-        delete json.song.events;
-        delete json.song.eventObjects;
+        for(let sec of json.song.notes){
 
-        // LIMPIAR SECCIONES
-        if(json.song.notes){
+            delete sec.sectionBeats;
+            delete sec.gfSection;
+            delete sec.bpm;
 
-            for(let sec of json.song.notes){
-
-                delete sec.sectionBeats;
-                delete sec.gfSection;
-                delete sec.bpm;
-
-            }
         }
     }
-
-    // =========================
-    // JSON FINAL
-    // =========================
 
     const convertedJSON =
         JSON.stringify(json, null, 4);
@@ -161,12 +173,9 @@ async function convertChart(){
         convertedJSON;
 
     info.innerHTML =
-        "✅ Chart convertido correctamente";
+        "✅ Chart convertido";
 
-    // =========================
-    // DESCARGA
-    // =========================
-
+    // 🔥 DESCARGA
     const blob =
         new Blob(
             [convertedJSON],
@@ -177,7 +186,8 @@ async function convertChart(){
         URL.createObjectURL(blob);
 
     const area =
-        document.getElementById('downloadArea');
+        document
+        .getElementById('downloadArea');
 
     area.innerHTML = "";
 
