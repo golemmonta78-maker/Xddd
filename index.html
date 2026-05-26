@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Psych Engine Converter</title>
+<title>Psych Engine 1.0.3 ➜ 0.7.3</title>
 
 <style>
 
@@ -50,6 +50,17 @@ a{
     text-decoration:none;
 }
 
+textarea{
+    width:100%;
+    height:250px;
+    margin-top:20px;
+    background:#181818;
+    color:white;
+    border:none;
+    border-radius:10px;
+    padding:10px;
+}
+
 </style>
 </head>
 
@@ -57,10 +68,10 @@ a{
 
 <div class="box">
 
-<h1>🔥 Psych Engine Chart Converter</h1>
+<h1>🔥 Psych Engine Converter</h1>
 
 <p>
-Convierte charts de Psych Engine 1.0.3 → 0.7.3 😎
+Convierte charts de Psych Engine 1.0.3 ➜ 0.7.3 😎
 </p>
 
 <input type="file" id="jsonInput" accept=".json"><br>
@@ -72,6 +83,8 @@ Convierte charts de Psych Engine 1.0.3 → 0.7.3 😎
 <div class="info" id="info">
 Esperando chart...
 </div>
+
+<textarea id="preview"></textarea>
 
 <div id="downloadArea"></div>
 
@@ -88,7 +101,7 @@ async function convertChart(){
 
     if(!file){
 
-        alert("Selecciona un JSON");
+        alert("Selecciona un chart JSON");
         return;
     }
 
@@ -105,28 +118,33 @@ async function convertChart(){
         JSON.parse(text);
 
     // =========================
-    // CONVERSIÓN 1.0.3 → 0.7.3
+    // ASEGURARSE QUE EXISTA song
     // =========================
 
-    delete json.events;
-    delete json.eventObjects;
-    delete json.gfVersion;
-    delete json.arrowSkin;
-    delete json.splashSkin;
-    delete json.disableNoteRGB;
-    delete json.gameOverChar;
-    delete json.gameOverSound;
-    delete json.gameOverLoop;
-    delete json.gameOverEnd;
+    if(json.song){
 
-    if(json.notes){
+        // BORRAR CAMPOS DE 1.0.3
+        delete json.song.gfVersion;
+        delete json.song.gameOverChar;
+        delete json.song.gameOverSound;
+        delete json.song.gameOverLoop;
+        delete json.song.gameOverEnd;
+        delete json.song.arrowSkin;
+        delete json.song.splashSkin;
+        delete json.song.disableNoteRGB;
+        delete json.song.events;
+        delete json.song.eventObjects;
 
-        for(let sec of json.notes){
+        // LIMPIAR SECCIONES
+        if(json.song.notes){
 
-            delete sec.sectionBeats;
-            delete sec.gfSection;
-            delete sec.bpm;
+            for(let sec of json.song.notes){
 
+                delete sec.sectionBeats;
+                delete sec.gfSection;
+                delete sec.bpm;
+
+            }
         }
     }
 
@@ -137,11 +155,16 @@ async function convertChart(){
     const convertedJSON =
         JSON.stringify(json, null, 4);
 
+    document
+    .getElementById('preview')
+    .value =
+        convertedJSON;
+
     info.innerHTML =
         "✅ Chart convertido correctamente";
 
     // =========================
-    // DESCARGA REAL
+    // DESCARGA
     // =========================
 
     const blob =
