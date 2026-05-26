@@ -32,6 +32,7 @@ button{
     border-radius:10px;
     margin-top:15px;
     font-size:16px;
+    cursor:pointer;
 }
 
 .info{
@@ -45,7 +46,7 @@ a{
     display:block;
     margin-top:20px;
     color:lime;
-    font-size:20px;
+    font-size:22px;
     text-decoration:none;
 }
 
@@ -59,7 +60,7 @@ a{
 <h1>🔥 Psych Engine Chart Converter</h1>
 
 <p>
-1.0.3 ➜ 0.7.3
+Convierte charts de Psych Engine 1.0.3 → 0.7.3 😎
 </p>
 
 <input type="file" id="jsonInput" accept=".json"><br>
@@ -77,8 +78,6 @@ Esperando chart...
 </div>
 
 <script>
-
-let convertedBlob = null;
 
 async function convertChart(){
 
@@ -106,7 +105,7 @@ async function convertChart(){
         JSON.parse(text);
 
     // =========================
-    // CONVERTIR A 0.7.3
+    // CONVERSIÓN 1.0.3 → 0.7.3
     // =========================
 
     delete json.events;
@@ -131,43 +130,50 @@ async function convertChart(){
         }
     }
 
+    // =========================
+    // JSON FINAL
+    // =========================
+
     const convertedJSON =
         JSON.stringify(json, null, 4);
 
-    convertedBlob =
+    info.innerHTML =
+        "✅ Chart convertido correctamente";
+
+    // =========================
+    // DESCARGA REAL
+    // =========================
+
+    const blob =
         new Blob(
             [convertedJSON],
             {type:'application/json'}
         );
 
-    info.innerHTML =
-        "✅ Chart convertido";
-
-    createDownloadLink();
-}
-
-function createDownloadLink(){
+    const url =
+        URL.createObjectURL(blob);
 
     const area =
         document.getElementById('downloadArea');
 
     area.innerHTML = "";
 
-    const url =
-        URL.createObjectURL(convertedBlob);
-
-    const a =
+    const link =
         document.createElement('a');
 
-    a.href = url;
+    link.href =
+        url;
 
-    a.innerHTML =
-        "📥 TOCA AQUÍ PARA DESCARGAR EL CHART";
+    link.download =
+        "converted-chart.json";
 
-    // IMPORTANTE PARA iPhone
-    a.target = "_blank";
+    link.innerHTML =
+        "📥 DESCARGAR CHART";
 
-    area.appendChild(a);
+    link.target =
+        "_blank";
+
+    area.appendChild(link);
 }
 
 </script>
